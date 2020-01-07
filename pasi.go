@@ -23,11 +23,14 @@ func main() {
 	var fontHeader = Font{PointSize: 20}
 	var fontNormal = Font{PointSize: 16}
 
-	MainWindow{
+	var mW *walk.MainWindow
+
+	var mainWindow = MainWindow{
 		Title:   "Pasi Rechner - V0.2",
 		MaxSize: windowSize,
 		MinSize: windowSize,
 		Size:    windowSize,
+		AssignTo: &mW,
 		Layout: VBox{
 			Alignment:   AlignHNearVNear,
 			MarginsZero: true,
@@ -297,7 +300,13 @@ func main() {
 				},
 			},
 		},
-	}.Run()
+	}
+
+	var _, error = mainWindow.Run()
+
+	if nil != error{
+		walk.MsgBox(mW, "Fehler beim Starten der Anwendung", error.Error(), walk.MsgBoxIconError)
+	}
 }
 
 type PasiData struct {
@@ -354,5 +363,4 @@ func (p *PasiData) calcBeine() {
 
 func d(double float64) string{
 	return strconv.FormatFloat(double, 'f', 1, 64)
-	//return fmt.Sprintf("%g", double)
 }
