@@ -1,7 +1,7 @@
 package pasi
 
 import (
-	//. "wt/pasi/pasi"
+	"time"
 
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
@@ -40,19 +40,6 @@ func GenerateMainWindow(mW **walk.MainWindow, pasiData *Data, onUpdate func()) M
 			ErrorPresenter: ToolTipErrorPresenter{},
 		},
 		Children: []Widget{
-			ToolBar{
-				ButtonStyle: ToolBarButtonImageBeforeText,
-				Items: []MenuItem{
-					Action{
-						Text:    "Export PDF",
-						Image:   "pdf.png",
-						Enabled: true,
-						OnTriggered: func() {
-							GeneratePDF(pasiData)
-						},
-					},
-				},
-			},
 			Composite{
 				Layout:     Grid{Columns: 2},
 				Background: SolidColorBrush{Color: walk.RGB(245, 12, 12)},
@@ -195,6 +182,68 @@ func GenerateMainWindow(mW **walk.MainWindow, pasiData *Data, onUpdate func()) M
 					Label{Text: "P A S I: ", Font: fontHeader},
 					NumberEdit{Decimals: 1, Font: fontHeader, ReadOnly: true, Value: Bind("Pasi"),
 						MaxSize: Size{Width: 100, Height: 40},
+					},
+					Label{Text: " ", Font: fontNormal},
+					PushButton{
+						Text:    "Export PDF",
+						Font:    fontNormal,
+						MaxSize: Size{Width: 130, Height: 40},
+						OnClicked: func() {
+							var dialog = generateSaveDialog(pasiData)
+							dialog.Run(*mW)
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func generateSaveDialog(pasiData *Data) Dialog {
+	var treeView *walk.TreeView
+	dialogSize := Size{Width: 400, Height: 400}
+	treeModel, _ := NewDirectoryTreeModel()
+	var dialog *walk.Dialog
+
+	var dataBinder *walk.DataBinder
+	var fileNameData FileNameData = FileNameData{FileName: pasiData.Name + "_" + time.Now().Format("02.01.2006") + ".pdf"}
+
+	var updateFunc = func() {
+		dataBinder.Submit()
+		dataBinder.Reset()
+	}
+
+	return Dialog{
+		Title:    "Speichern unter",
+		MinSize:  dialogSize,
+		Size:     dialogSize,
+		Layout:   VBox{},
+		AssignTo: &dialog,
+		DataBinder: DataBinder{
+			AssignTo:       &dataBinder,
+			Name:           "fileNameData",
+			DataSource:     &fileNameData,
+			ErrorPresenter: ToolTipErrorPresenter{},
+		},
+		Children: []Widget{
+			TreeView{
+				AssignTo: &treeView,
+				Model:    treeModel, OnCurrentItemChanged: func() {
+					dir := treeView.CurrentItem().(*Directory)
+					fileNameData.FolderPath = dir.Path()
+				},
+			},
+			Composite{
+				Layout: HBox{},
+				Children: []Widget{
+					Label{Text: "Dateiname: "},
+					LineEdit{Text: Bind("FileName"), OnTextChanged: updateFunc},
+					PushButton{
+						Text: "Speichern",
+						OnClicked: func() {
+							GeneratePDF(pasiData, fileNameData.FolderPath+"\\"+fileNameData.FileName)
+							dialog.Close(0)
+						},
 					},
 				},
 			},

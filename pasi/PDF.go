@@ -2,12 +2,12 @@ package pasi
 
 import (
 	"log"
-	"time"
 	"strconv"
+
 	"github.com/jung-kurt/gofpdf"
 )
 
-func GeneratePDF(pasiData *Data) {
+func GeneratePDF(pasiData *Data, fileName string) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	tr := pdf.UnicodeTranslatorFromDescriptor("")
 
@@ -15,7 +15,7 @@ func GeneratePDF(pasiData *Data) {
 
 	pdf.SetFont("Arial", "B", 20)
 
-	pdf.Cell(40, 10, tr("P A S I - Berechnung für: "+ pasiData.Name))
+	pdf.Cell(40, 10, tr("P A S I - Berechnung für: "+pasiData.Name))
 	pdf.Ln(15)
 
 	pdf.SetFont("Arial", "", 10)
@@ -100,9 +100,9 @@ func GeneratePDF(pasiData *Data) {
 	pdf.SetFont("Arial", "B", 14)
 	pdf.Cell(40, 10, tr("P A S I: "+d(pasiData.Pasi)))
 
-	log.Print(pdf.OutputFileAndClose(pasiData.Name + "_" + time.Now().Format("02.01.2006") + ".pdf"))
+	log.Print(pdf.OutputFileAndClose(fileName))
 }
 
-func d(double float64) string{
+func d(double float64) string {
 	return strconv.FormatFloat(double, 'f', 1, 64)
 }
