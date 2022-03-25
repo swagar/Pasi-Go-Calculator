@@ -4,7 +4,7 @@ import (
 	"github.com/lxn/walk"
 	//. "github.com/lxn/walk/declarative"
 	"strconv"
-	. "wt/pasi/pasi"
+	. "Pasi-Go-Calculator/pasi"
 )
 
 func main() {

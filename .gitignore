@@ -2,3 +2,4 @@
 *.7z
 **.pdf
 .vscode/*
+.idea/*
